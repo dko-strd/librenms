@@ -25,10 +25,12 @@ class GrandstreamAp extends OS implements
         $response = SnmpQuery::get([
             'GRANDSTREAM-GWN-PRODUCTS-AP-MIB::gwnDeviceVersion.0',
             'GRANDSTREAM-GWN-PRODUCTS-AP-MIB::gwnDeviceModel.0',
+            'GRANDSTREAM-GWN-PRODUCTS-AP-MIB::gwnDeviceName.0',
         ])->values();
 
         $device->version = $response['GRANDSTREAM-GWN-PRODUCTS-AP-MIB::gwnDeviceVersion.0'] ?: null;
         $device->hardware = $response['GRANDSTREAM-GWN-PRODUCTS-AP-MIB::gwnDeviceModel.0'] ?: null;
+        $device->sysName = $response['GRANDSTREAM-GWN-PRODUCTS-AP-MIB::gwnDeviceName.0'] ?: null;
     }
 
     public function discoverWirelessClients(): array
