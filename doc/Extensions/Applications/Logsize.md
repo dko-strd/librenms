@@ -41,7 +41,7 @@ logsize is a small shell script that reports the size of log files.
 3. Configure the config at `/usr/local/etc/logsize.conf`. You can find the documentation for the config file in the extend. Below is a small example.
 
     ```conf
-    # monitor log sizes of logs directly udner /var/log
+    # monitor log sizes of logs directly under /var/log
     [sets.var_log]
     dir="/var/log/"
 
@@ -60,7 +60,7 @@ logsize is a small shell script that reports the size of log files.
 
 4. If the directories all readable via SNMPD, this script can be ran
    via snmpd. Otherwise it needs setup in cron. Similarly is
-   processing a large number of files, it may also need setup in cron
+   processes many files, it can also need a cron entry
    if it takes the script awhile to run.
 
     ```cron
@@ -122,7 +122,7 @@ script and make it executable.
 3. Configure the config at `/usr/local/etc/logsize.conf`. You can find the documentation for the config file in the extend. Below is a small example.
 
     ```conf
-    # monitor log sizes of logs directly udner /var/log
+    # monitor log sizes of logs directly under /var/log
     [sets.var_log]
     dir="/var/log/"
 
@@ -141,7 +141,7 @@ script and make it executable.
 
 4. If the directories all readable via SNMPD, this script can be ran
    via snmpd. Otherwise it needs setup in cron. Similarly is
-   processing a large number of files, it may also need setup in cron
+   processes many files, it can also need a cron entry
    if it takes the script awhile to run.
 
     ```cron

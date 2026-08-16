@@ -6,10 +6,10 @@ Retrieve all logs or logs for a specific device.
 
 Input:
 
-- start: The page number to request.
-- limit: The limit of results to be returned.
-- from: The date and time or the event id to search from.
-- to: The data and time or the event id to search to.
+- start: the page number of the request.
+- limit: the maximum number of results.
+- from: the start date and time, or the start event id, of the search.
+- to: the end date and time, or the end event id, of the search.
 
 ### `list_eventlog`
 
@@ -25,7 +25,7 @@ Route: `/api/v0/logs/alertlog/:hostname`
 
 ### `list_authlog`
 
-Route: `/api/v0/logs/authlog/:hostname`
+Route: `/api/v0/logs/authlog`
 
 Example:
 
@@ -78,7 +78,7 @@ Output:
 
 ### `syslogsink`
 
-Route: `/api/v0/logs/syslogsink`
+Route: `/api/v0/syslogsink`
 
 Accept any json messages and passes to further syslog processing. single messages or an array of multiple messages is accepted. see [Syslog](../Extensions/Syslog.md) for more details and logstash integration
 

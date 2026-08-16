@@ -45,9 +45,10 @@ Output:
 
 Search for ports matching the query.
 
-Route: `/api/v0/ports/search/:search`
+Route: `/api/v0/ports/search/:field/:search`
 
-- search string to search in fields: ifAlias, ifDescr, and ifName
+- field: comma separated list of field(s) to search
+- search: string to search in fields
 
 Input:
 
@@ -56,7 +57,7 @@ Input:
 Example:
 
 ```curl
-curl -H 'X-Auth-Token: YOURAPITOKENHERE' https://foo.example/api/v0/ports/search/lo
+curl -H 'X-Auth-Token: YOURAPITOKENHERE' https://foo.example/api/v0/ports/search/ifAlias,ifDescr,ifName/lo
 ```
 
 Output:
@@ -247,7 +248,7 @@ Get all info for a particular port.
 Route: `/api/v0/ports/:portid?with=vlans`
 
 - portid must be an integer
-- it's possible to add allowed associated relations to the port using the `with` option. Allowed: `vlans`,`device`
+- The `with` option adds the permitted relations of the port. Allowed: `vlans`,`device`,`statistics`
 
 Input:
 
@@ -457,7 +458,7 @@ Route: `/api/v0/ports/:portid/description`
 Input (JSON):
 
 - description: The string data to use as the new port description.
-Sending an empty string will reset the description to default.
+An empty string resets the description to its default.
 
 Example:
 

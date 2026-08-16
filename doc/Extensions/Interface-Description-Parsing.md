@@ -2,7 +2,7 @@
 
 Librenms can interpret, display and group certain additional information on ports.
 This is done based on the format that the port description is written,
-although it's possible  to customise the parser to be specific for your setup.
+You can also customise the parser for your own setup.
 
 ## Keywords
 
@@ -52,16 +52,17 @@ The following config options can be set to enable more custom types:
     ```bash
     lnms config:set customers_descr.+ 'cust'
     lnms config:set transit_descr.+ 'transit'
-    lnms config:set peering_descr.+ 'peering'";'
+    lnms config:set peering_descr.+ 'peering'
     lnms config:set core_descr.+ 'core'
-    lnms config:set custom_descr.+ 'something_made_up'
+    lnms config:set custom_descr.+ 'ptp'
+    lnms config:set custom_descr.+ 'anything'
     ```
 
 ## Custom interface parser
 
-It's also possible to write your own parser, the existing one is: includes/port-descr-parser.inc.php
+You can write your own parser. The existing one is `includes/port-descr-parser.inc.php`.
 
-Once you've created your own then you can enable it with:
+After you create your own parser, enable it with:
 
 !!! setting "webui/port-descr"
     ```bash
@@ -90,10 +91,10 @@ return function (string $ifAlias): array {
 
 Fields you can fill in your returned array
 
- - type: port type (only defined types will show as graphs)
+ - type: the port type. Only a defined type appears as a graph
  - descr: description of the port
  - circuit: usually a circuit id
- - speed: can be a plan name or a numeric speed 10G (or asymmetric 10G/500M), numeric speeds
+ - speed: can be a plan name or a numeric speed 10G or asymmetric egress/ingress numeric speeds (eg 10G/500M)
    can used by custom maps and some graphs
  - notes: notes
 
@@ -117,7 +118,7 @@ to support the parsing of interface information.
   to the Server and make it executable `chmod +x /path/to/ifAlias`
 - Add to `snmpd.conf` something like:
     ``pass .1.3.6.1.2.1.31.1.1.1.18 /path/to/ifAlias``
-- Add aliasses with
+- Add aliases with
   - `iproute2` package like:
     ``ip link set eth0.427 alias 'Cust: CustomerA'``
   - in `/etc/network/interfaces` or `/etc/network/interfaces.d/*` with a comment like:

@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use App\Events\UserCreated;
+use App\Observers\UserObserver;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -10,7 +12,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Hash;
+use Laravel\Sanctum\HasApiTokens;
 use LibreNMS\Authentication\LegacyAuth;
 use NotificationChannels\WebPush\HasPushSubscriptions;
 use Permissions;
@@ -19,8 +23,10 @@ use Spatie\Permission\Traits\HasRoles;
 /**
  * @method static \Database\Factories\UserFactory factory(...$parameters)
  */
+#[ObservedBy([UserObserver::class])]
 class User extends Authenticatable
 {
+    use HasApiTokens;
     use HasFactory;
     use HasPushSubscriptions;
     use HasRoles;
@@ -59,49 +65,6 @@ class User extends Authenticatable
     // ---- Helper Functions ----
 
     /**
-     * Test if this user has global read access
-     */
-    public function hasGlobalRead(): bool
-    {
-        return $this->can('global-read');
-    }
-
-    /**
-     * Test if this user has global admin access
-     */
-    public function hasGlobalAdmin(): bool
-    {
-        return $this->can('global-admin');
-    }
-
-    /**
-     * Test if the User is an admin.
-     */
-    public function isAdmin(): bool
-    {
-        return $this->can('admin');
-    }
-
-    /**
-     * Test if this user is the demo user
-     */
-    public function isDemo(): bool
-    {
-        return $this->hasRole('demo');
-    }
-
-    /**
-     * Check if this user has access to a device
-     *
-     * @param  Device|int  $device  can be a device Model or device id
-     * @return bool
-     */
-    public function canAccessDevice($device): bool
-    {
-        return $this->hasGlobalRead() || Permissions::canAccessDevice($device, $this->user_id);
-    }
-
-    /**
      * Helper function to hash passwords before setting
      *
      * @param  string  $password
@@ -112,24 +75,8 @@ class User extends Authenticatable
     }
 
     /**
-     * Check if the given user can set the password for this user
-     *
-     * @param  User  $user
-     * @return bool
+     * @return int|Collection<int, \App\Models\Notification>
      */
-    public function canSetPassword($user)
-    {
-        if ($user && LegacyAuth::get()->canUpdatePasswords()) {
-            if ($user->isAdmin()) {
-                return true;
-            }
-
-            return $user->is($this) && $this->can_modify_passwd;
-        }
-
-        return false;
-    }
-
     public function getNotifications(?string $type = null): int|Collection
     {
         return match ($type) {
@@ -243,7 +190,7 @@ class User extends Authenticatable
     public function devices()
     {
         // pseudo relation
-        return Device::query()->when(! $this->hasGlobalRead(), fn ($query) => $query->whereIntegerInRaw('device_id', Permissions::devicesForUser($this)));
+        return Device::query()->when(Gate::denies('viewAll', Device::class), fn ($query) => $query->whereIntegerInRaw('device_id', Permissions::devicesForUser($this)));
     }
 
     /**
@@ -264,7 +211,7 @@ class User extends Authenticatable
 
     public function ports()
     {
-        if ($this->hasGlobalRead()) {
+        if (Gate::allows('viewAll', Port::class)) {
             return Port::query();
         } else {
             //FIXME we should return all ports for a device if the user has been given access to the whole device.

@@ -22,7 +22,6 @@ $components = $components[$device['device_id']];
 
 include 'includes/html/graphs/common.inc.php';
 $graph_params->scale_min = 0;
-$graph_params->sloped_mode = true;
 $graph_params->vertical_label = 'Seconds';
 
 $rrd_options[] = 'COMMENT:Dispersion (s)         Now      Min      Max\\n';
@@ -37,7 +36,7 @@ foreach ($components as $array) {
         $color = \App\Facades\LibrenmsConfig::get("graph_colours.mixed.$count", \App\Facades\LibrenmsConfig::get('graph_colours.oranges.' . ($count - 7)));
 
         $rrd_options[] = 'DEF:DS' . $count . '=' . $rrd_filename . ':dispersion:AVERAGE';
-        $rrd_options[] = 'LINE1.25:DS' . $count . '#' . $color . ':' . str_pad(substr((string) $array['peer'], 0, 15), 15) . $stack;
+        $rrd_options[] = 'LINE1.25:DS' . $count . '#' . $color . ':' . str_pad(substr((string) $array['peer'], 0, 15), 15);
         $rrd_options[] = 'GPRINT:DS' . $count . ':LAST:%7.2lf';
         $rrd_options[] = 'GPRINT:DS' . $count . ':MIN:%7.2lf';
         $rrd_options[] = 'GPRINT:DS' . $count . ':MAX:%7.2lf\\l';

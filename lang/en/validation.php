@@ -86,7 +86,8 @@ return [
         ],
         'rrd' => [
             'CheckRrdVersion' => [
-                'fail' => 'The rrdtool version you have specified is newer than what is installed. Config: :config_version Installed :installed_version',
+                'fail' => 'rrdtool version :installed_version is too old, LibreNMS requires a minimum version of 1.5.5',
+                'fail_config' => 'The rrdtool_version :config_version you have specified is too old, LibreNMS requires a minimum version of 1.5.5',
                 'fix' => 'Either comment out or delete $config[\'rrdtool_version\'] = \':version\'; from your config.php file',
                 'ok' => 'rrdtool version ok',
             ],
@@ -107,6 +108,7 @@ return [
                 'list_bad_files_title' => 'Error running rrdinfo on files',
                 'list_bad_step_item' => ':file: step is :step, should be :target',
                 'ok' => 'All :total RRD files have the correct step.',
+                'timeout' => 'Checking RRD files took too long, check skipped. You can run :command to check and fix all rrd files.',
             ],
         ],
         'database' => [

@@ -1,6 +1,30 @@
+### `ping`
+
+A simple endpoint for the availability of the API.
+
+Route: `/api/v0/ping`
+
+Input:
+
+-
+
+Example:
+
+```curl
+curl -H 'X-Auth-Token: YOURAPITOKENHERE' https://foo.example/api/v0/ping
+```
+
+Output:
+
+```json
+{
+    "message": "pong"
+}
+```
+
 ### `system`
 
-Display Librenms instance information.
+It shows the information of the LibreNMS instance.
 
 Route: `/api/v0/system`
 

@@ -22,11 +22,10 @@ $pallette = [
 ];
 
 $graph_params->scale_min = 0;
-$graph_params->sloped_mode = true;
 
 $rrd_options[] = 'COMMENT:Associated Stations    Cur     Min    Max\\n';
 $radioId = 1;
-foreach (glob(Rrd::name($device['hostname'], 'xirrus_users-', '*.rrd')) as $rrd) {
+foreach (Rrd::getRrdFiles($device['hostname'], 'xirrus_users-') as $rrd) {
     // get radio name
     preg_match('/xirrus_users-iap([0-9]{1,2}).rrd/', $rrd, $out);
     [,$radioId] = $out;

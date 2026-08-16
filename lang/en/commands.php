@@ -7,6 +7,36 @@ return [
         'no_devices' => 'No devices found matching your given device specification',
         'no_new_devices' => 'No new devices',
     ],
+    'api:token-create' => [
+        'description' => 'Create a new API token for a user',
+        'arguments' => [
+            'username' => 'User to create the token for',
+        ],
+        'options' => [
+            'name' => 'Name for the token',
+        ],
+        'created' => 'Token created successfully.',
+        'save-warning' => 'Save this token — it will not be shown again.',
+        'user-not-found' => 'User \':username\' not found.',
+    ],
+    'api:token-list' => [
+        'description' => 'List API tokens for a user',
+        'arguments' => [
+            'username' => 'User to list tokens for',
+        ],
+        'no-tokens' => 'No tokens found for user \':username\'.',
+        'user-not-found' => 'User \':username\' not found.',
+    ],
+    'api:token-revoke' => [
+        'description' => 'Revoke an API token for a user',
+        'arguments' => [
+            'username' => 'User the token belongs to',
+            'token-id' => 'ID of the token to revoke (see api:token-list)',
+        ],
+        'revoked' => 'Token \':name\' (ID: :id) revoked.',
+        'token-not-found' => 'Token ID :id not found for user \':username\'.',
+        'user-not-found' => 'User \':username\' not found.',
+    ],
     'config:clear' => [
         'description' => 'Clear config cache.  This will allow any changes that have been made since the last full config load to be reflected in the current config.',
     ],
@@ -66,6 +96,29 @@ return [
             'snmpsim' => 'Use snmpsim for unit tests',
         ],
     ],
+    'dev:collect-snmprec' => [
+        'description' => 'Collect SNMP data from a device for snmpsim test files',
+        'arguments' => [
+            'device' => 'ID, IP, or hostname of the device to collect data from',
+        ],
+        'options' => [
+            'variant' => 'The variant of the OS to use, usually the device model',
+            'modules' => 'The discovery/poller module(s) to collect data for, comma delimited',
+            'prefer-new' => 'Prefer new snmprec data over existing data',
+            'os' => 'Name of the OS to save test data for (only used if device is generic)',
+            'file' => 'Save data to file instead of the standard location',
+            'debug' => 'Enable debug output',
+            'full' => 'Walk the whole device (default: only used OIDs)',
+        ],
+        'device_not_found' => 'Device \':device\' not found.',
+        'variant_required' => 'The --variant (-v) option is required.',
+        'variant_underscore' => 'Variant name cannot contain an underscore (_).',
+        'os_required' => 'OS (-o, --os) is required because device is generic.',
+        'capturing_data' => 'Capturing Data:',
+        'saved_snmprec' => 'Saved snmprec data :file',
+        'no_data' => 'No data for :file',
+        'verify_private_data' => 'Verify these file(s) do not contain any private data before sharing!',
+    ],
     'dev:simulate' => [
         'description' => 'Simulate devices using test data',
         'arguments' => [
@@ -124,7 +177,9 @@ return [
             'device spec' => 'Device spec to discover: device_id, hostname, wildcard (*), odd, even, all',
         ],
         'options' => [
-            'module' => 'Specify module(s) to be run. submodules may be added with /.  Multiple values allowed.',
+            'modules' => 'Specify module(s) to be run. submodules may be added with /.  Multiple values allowed.',
+            'os' => 'Discover devices only with specified operating system',
+            'type' => 'Discover devices only with specified type',
         ],
         'errors' => [
             'none_up' => 'Device was down, unable to discover.|All devices were down, unable to discover.',
@@ -153,6 +208,8 @@ return [
         'options' => [
             'modules' => 'Specify single module to be run. Comma separate modules, submodules may be added with /',
             'no-data' => 'Do not update datastores (RRD, InfluxDB, etc)',
+            'os' => 'Poll devices only with specified operating system',
+            'type' => 'Poll devices only with specified type',
         ],
         'errors' => [
             'none_up' => 'Device was down, unable to poll.|All devices were down, unable to poll.',
@@ -239,7 +296,30 @@ return [
         'summary' => 'Converted: :converted  Failed: :failed  Skipped: :skipped',
     ],
     'maintenance:cleanup-syslog' => [
+        'description' => 'Cleanup syslog entries older than a specified number of days',
+        'arguments' => [
+            'days' => 'Number of days to keep syslog entries (default: syslog_purge configured value)',
+        ],
+        'bad_days_input' => 'Days must be numeric',
+        'bad_days_setting' => 'Syslog cleanup disabled due to invalid syslog_purge setting',
         'delete' => 'Cleared syslog entries older than :days days (:count rows)',
+        'disabled' => 'Syslog cleanup disabled, days <= 0',
+    ],
+    'maintenance:discover-ssl-certificates' => [
+        'description' => 'Discover SSL certificates on devices (HTTPS port 443)',
+        'options' => [
+            'device' => 'Device spec to discover: device_id, hostname, or all',
+        ],
+        'no_devices' => 'No devices found',
+        'summary' => 'Created: :created, Updated: :updated, Failed: :failed',
+    ],
+    'maintenance:refresh-ssl-certificates' => [
+        'description' => 'Refresh certificate data for stored SSL certificates',
+        'options' => [
+            'id' => 'Certificate ID to refresh (omit to refresh all enabled)',
+        ],
+        'none' => 'No enabled certificates to refresh',
+        'summary' => 'Refreshed: :refreshed, Failed: :failed',
     ],
     'plugin:disable' => [
         'description' => 'Disable all plugins with the given name',

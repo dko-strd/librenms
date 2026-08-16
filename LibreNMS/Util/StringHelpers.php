@@ -28,6 +28,11 @@ namespace LibreNMS\Util;
 
 class StringHelpers
 {
+    public static function isValidUtf8(string $string): bool
+    {
+        return preg_match('//u', $string) === 1;
+    }
+
     public static function niceCase($string)
     {
         $replacements = [
@@ -97,7 +102,13 @@ class StringHelpers
      */
     public static function inferEncoding(?string $string): ?string
     {
-        if (empty($string) || preg_match('//u', $string) || ! function_exists('iconv')) {
+        if (empty($string) || self::isValidUtf8($string)) {
+            return $string;
+        }
+
+        $string = str_replace(chr(218), "\n", $string);
+
+        if (! function_exists('iconv')) {
             return $string;
         }
 
@@ -105,6 +116,21 @@ class StringHelpers
 
         if (($converted = @iconv((string) $charset, 'UTF-8', $string)) !== false) {
             return (string) $converted;
+        }
+
+        // Detect GB multi-byte pattern: strict GB2312 range (0xA1-0xF7, 0xA1-0xFE)
+        // or GBK extended range (0x81-0xA0, 0x40-0x7E/0x80-0xFE). Count occurrences to avoid
+        // false positives from Western encodings like CP850 which may have single high-byte pairs.
+        $gbPatternCount = preg_match_all('/[\xA1-\xF7][\xA1-\xFE]|[\x81-\xA0][\x40-\x7E\x80-\xFE]/s', $string);
+        $hasGbPattern = $gbPatternCount >= 2;
+
+        if ($hasGbPattern) {
+            // GB pattern detected, prioritize GB family encodings
+            foreach (['GB18030', 'GBK', 'GB2312'] as $encoding) {
+                if (($converted = @iconv($encoding, 'UTF-8', $string)) !== false) {
+                    return (string) $converted;
+                }
+            }
         }
 
         if ($charset !== 'Windows-1252' && ($converted = @iconv('Windows-1252', 'UTF-8', $string)) !== false) {
@@ -171,13 +197,7 @@ class StringHelpers
             $hex = str_replace($seperator, '', $no_nulls);
         }
 
-        $string = '';
-
-        for ($i = 0; $i < strlen($hex) - 1; $i += 2) {
-            $string .= chr(hexdec(substr($hex, $i, 2)));
-        }
-
-        return $string;
+        return hex2bin($hex);
     }
 
     public static function trimHexGarbage(string $string): string

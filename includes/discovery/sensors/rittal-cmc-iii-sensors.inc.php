@@ -25,7 +25,6 @@
  */
 
 use LibreNMS\Util\Number;
-use LibreNMS\Util\StringHelpers;
 
 $cmc_iii_var_table = snmpwalk_cache_oid($device, 'cmcIIIVarTable', [], 'RITTAL-CMC-III-MIB', null);
 $cmc_iii_sensors = [];
@@ -103,7 +102,7 @@ foreach ($cmc_iii_var_table as $index => $entry) {
             }
 
             // encode string to ensure that degree sign may be used properly for unit comparison
-            $unit = StringHelpers::inferEncoding($entry['cmcIIIVarUnit']);
+            $unit = $entry['cmcIIIVarUnit'];
             $type = 'state';
             $temperature_units = ['degree C', 'degree F', '°C', '°F'];
             if ($unit == 'mA') {
@@ -149,7 +148,7 @@ foreach ($unique_desc_counter as $sensor_desc => $sensor_id_r) {
 
 //At first device discovery the serial number is not set. But we need this in the next step for our state indexes.
 if (! $device['serial']) {
-    $serial_number = snmp_get($device, 'cmcIIIUnitSerial.0', '-Oqv', 'RITTAL-CMC-III-MIB');
+    $serial_number = SnmpQuery::get('RITTAL-CMC-III-MIB::cmcIIIUnitSerial.0')->value();
 } else {
     $serial_number = $device['serial'];
 }
@@ -182,13 +181,11 @@ foreach ($cmc_iii_sensors as $sensor_id => $sensor_data) {
             [
                 'value' => 0,
                 'generic' => 0,
-                'graph' => 1,
                 'descr' => $sensor_data['logic'][0],
             ],
             [
                 'value' => 1,
                 'generic' => 0,
-                'graph' => 1,
                 'descr' => $sensor_data['logic'][1],
             ],
         ];

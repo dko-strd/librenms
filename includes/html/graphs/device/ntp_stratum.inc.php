@@ -23,7 +23,6 @@ $components = $components[$device['device_id']];
 include 'includes/html/graphs/common.inc.php';
 $graph_params->scale_min = 0;
 $graph_params->scale_max = 16;
-$graph_params->sloped_mode = true;
 
 $rrd_options[] = 'COMMENT:Stratum               Now      Min      Max\\n';
 
@@ -36,7 +35,7 @@ foreach ($components as $array) {
         $color = \App\Facades\LibrenmsConfig::get("graph_colours.mixed.$count", \App\Facades\LibrenmsConfig::get('graph_colours.oranges.' . ($count - 7)));
 
         $rrd_options[] = 'DEF:DS' . $count . '=' . $rrd_filename . ':stratum:AVERAGE';
-        $rrd_options[] = 'LINE1.25:DS' . $count . '#' . $color . ':' . str_pad(substr((string) $array['peer'], 0, 15), 15) . $stack;
+        $rrd_options[] = 'LINE1.25:DS' . $count . '#' . $color . ':' . str_pad(substr((string) $array['peer'], 0, 15), 15);
         $rrd_options[] = 'GPRINT:DS' . $count . ':LAST:%5.0lf';
         $rrd_options[] = 'GPRINT:DS' . $count . ':MIN:%7.0lf';
         $rrd_options[] = 'GPRINT:DS' . $count . ':MAX:%7.0lf\\l';
