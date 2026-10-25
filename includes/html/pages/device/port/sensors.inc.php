@@ -16,7 +16,8 @@ foreach ($sensors as $sensor) {
         $sensor_descr = $sensor->sensor_descr;
     }
 
-    $sensor_current = Html::severityToLabel($sensor->currentStatus(), $sensor->formatValue());
+    $value_label = $sensor->displaysCounterTotal() ? __('Cumulative total') . ': ' : '';
+    $sensor_current = Html::severityToLabel($sensor->currentStatus(), $value_label . $sensor->formatValue());
 
     echo "<div class='panel panel-default'>\n" .
          "    <div class='panel-heading'>\n" .
@@ -43,6 +44,9 @@ foreach ($sensors as $sensor) {
     $graph_array['id'] = $sensor->sensor_id;
     $graph_array['type'] = $sensor->getGraphType();
 
+    if ($sensor->displaysCounterTotal()) {
+        echo '<p>' . e(__('Rate of change')) . '</p>';
+    }
     include 'includes/html/print-graphrow.inc.php';
 
     echo "    </div>\n" .

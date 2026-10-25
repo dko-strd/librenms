@@ -100,6 +100,37 @@ class Sensor extends SensorModel implements HasSyncProtectedAttributes, Keyable
         return 'sensor_' . $this->sensor_class;
     }
 
+    public function displaysCounterTotal(): bool
+    {
+        if ($this->sensor_class !== 'count'
+            || ! in_array($this->rrd_type, ['COUNTER', 'DERIVE', 'DCOUNTER', 'DDERIVE'], true)) {
+            return false;
+        }
+
+        $os = $this->device?->os;
+        if ($os === null) {
+            return false;
+        }
+
+        $rules = LibrenmsConfig::getOsSetting($os, 'sensor_counter_display', []);
+        if (! is_array($rules)) {
+            return false;
+        }
+
+        foreach ($rules as $rule) {
+            if (! is_array($rule) || ($rule['type'] ?? null) !== $this->sensor_type) {
+                continue;
+            }
+            if (array_key_exists('index', $rule) && $rule['index'] !== $this->sensor_index) {
+                continue;
+            }
+
+            return ($rule['display'] ?? null) === 'total';
+        }
+
+        return false;
+    }
+
     /**
      * Format current value for user display including units.
      */
@@ -109,6 +140,12 @@ class Sensor extends SensorModel implements HasSyncProtectedAttributes, Keyable
 
         if ($value === null) {
             return $field == 'sensor_current' ? 'NaN' : '-';
+        }
+
+        if ($this->displaysCounterTotal()) {
+            return extension_loaded('intl')
+                ? (string) \Illuminate\Support\Number::format((float) $value, precision: 0, locale: app()->getLocale())
+                : number_format((float) $value);
         }
 
         if (in_array($this->rrd_type, ['COUNTER', 'DERIVE', 'DCOUNTER', 'DDERIVE'])) {

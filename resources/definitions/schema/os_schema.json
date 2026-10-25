@@ -24,6 +24,33 @@
                 "additionalProperties": false
             }
         },
+        "sensor_counter_display": {
+            "description": "Ordered opt-in display rules for count sensors with counter RRD types. First matching rule wins; the default remains rate display.",
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "type": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "index": {
+                        "type": "string"
+                    },
+                    "display": {
+                        "enum": [
+                            "rate",
+                            "total"
+                        ]
+                    }
+                },
+                "required": [
+                    "type",
+                    "display"
+                ],
+                "additionalProperties": false
+            }
+        },
         "type": {
             "type": "string"
         },

@@ -14,6 +14,44 @@ For example, this line sets a different icon for ios:
 $config['os']['ios']['icon'] = 'fuzzybunny';
 ```
 
+### Counter display
+
+Count sensors stored as COUNTER, DERIVE, DCOUNTER or DDERIVE normally display an
+estimated rate. An OS definition can opt selected counter sensors into displaying
+the cumulative value instead, without changing discovery, polling or RRD storage:
+
+```yaml
+sensor_counter_display:
+    - { type: example-counter, index: ignored-counter.0, display: rate }
+    - { type: example-counter, display: total }
+```
+
+`type` matches `sensor_type` exactly. Optional `index` matches `sensor_index`
+exactly; omit it to match all indexes of that type. The first matching rule wins.
+Unmatched sensors keep the existing rate display. `total` applies only to count
+sensors with counter RRD types, so gauges and other sensor classes are unchanged.
+Total values use whole numbers with locale-aware grouping when PHP Intl is
+available, or comma grouping otherwise. Missing values remain missing.
+
+Overview uses the standard sensor panel and splits an affected group into Current
+values and Cumulative totals. Health labels opted-in values as cumulative totals.
+A total is not a daily count and may reset. Sensor tables identify totals and omit
+their adjacent rate graphs, including the expanded graph view. Counter RRD graphs
+elsewhere still represent rates of change; opted-in graphs use a per-second axis
+and omit alert threshold lines, because those limits apply to the raw cumulative
+value. Port sensor panels label retained graphs as Rate of change. Stored RRD data,
+threshold settings and alert evaluation are unchanged.
+
+To override or disable the rules for one OS in `config.php`:
+
+```php
+$config['os']['example-os']['sensor_counter_display'] = [
+    ['type' => 'example-counter', 'display' => 'total'],
+];
+// Restore the default rate display for all counters of that OS:
+$config['os']['example-os']['sensor_counter_display'] = [];
+```
+
 ### Ignoring Sensors
 
 The configuration can filter out some sensors:

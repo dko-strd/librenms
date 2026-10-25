@@ -211,10 +211,13 @@ class OverviewController implements DeviceTab
     private function groupSensors(Device $device, Collection $sensors): Collection
     {
         $from = LibrenmsConfig::get('time.day');
+        $totalGroups = $sensors->filter(fn (Sensor $sensor): bool => $sensor->displaysCounterTotal())
+            ->pluck('group')->all();
 
         return $sensors
             ->sortBy([
                 fn (Sensor $a, Sensor $b): int => strnatcasecmp((string) $a->group, (string) $b->group),
+                fn (Sensor $a, Sensor $b): int => (int) $a->displaysCounterTotal() <=> (int) $b->displaysCounterTotal(),
                 fn (Sensor $a, Sensor $b): int => strnatcasecmp((string) $a->sensor_descr, (string) $b->sensor_descr),
             ])
             ->map(function (Sensor $sensor) use ($device, $from): array {
@@ -235,6 +238,15 @@ class OverviewController implements DeviceTab
                     ]),
                 ];
             })
-            ->groupBy(fn (array $data) => $data['sensor']->group);
+            ->groupBy(function (array $data) use ($totalGroups): ?string {
+                $sensor = $data['sensor'];
+                if (! in_array($sensor->group, $totalGroups, true)) {
+                    return $sensor->group;
+                }
+
+                $label = $sensor->displaysCounterTotal() ? __('Cumulative totals') : __('Current values');
+
+                return filled($sensor->group) ? $sensor->group . ' — ' . $label : $label;
+            });
     }
 }

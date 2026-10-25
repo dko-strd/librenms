@@ -26,6 +26,7 @@
 
 namespace App\Http\Controllers\Table\Traits;
 
+use App\Models\Sensor;
 use App\Models\SensorModel;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
@@ -80,13 +81,16 @@ trait SensorTrait
         $hostname = Blade::render('<x-device-link :device="$device" />', ['device' => $model->device]);
         $sensor_class = $model->sensor_class instanceof \BackedEnum ? $model->sensor_class->value : $model->sensor_class;
         $link = Url::generate(['page' => 'device', 'device' => $model['device_id'], 'tab' => 'health', 'metric' => $sensor_class]);
-        $descr = Url::graphPopup($graph_array, htmlentities((string) $model->sensor_descr), $link);
-        $mini_graph = Url::graphPopup($graph_array);
+        $counterTotal = $model instanceof Sensor && $model->displaysCounterTotal();
+        $descr = $counterTotal
+            ? '<a href="' . e($link) . '">' . e($model->sensor_descr) . '</a>'
+            : Url::graphPopup($graph_array, htmlentities((string) $model->sensor_descr), $link);
+        $mini_graph = $counterTotal ? e(__('Cumulative total')) : Url::graphPopup($graph_array);
         $sensor_current = Html::severityToLabel($model->currentStatus(), $model->formatValue());
         $alert = $model->currentStatus() == Severity::Error ? '<i class="fa fa-flag fa-lg" style="color:red" aria-hidden="true"></i>' : '';
 
         // show graph row inline
-        if ($request->input('view') == 'graphs') {
+        if ($request->input('view') == 'graphs' && ! $counterTotal) {
             $row = Html::graphRow(array_replace($graph_array, ['height' => 100, 'width' => 210]));
             $hostname = '<div class="tw:border-b tw:border-gray-200">' . $hostname . '</div><div style="width: 210px; margin-left: auto;">' . $row[0] . '</div>';
             $descr = '<div class="tw:border-b tw:border-gray-200">' . $descr . '</div><div style="width: 210px">' . $row[1] . '</div>';

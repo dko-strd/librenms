@@ -23,7 +23,8 @@ foreach ($sensors as $sensor) {
         $sensor_descr = e($sensor['sensor_descr']);
     }
 
-    $sensor_current = Html::severityToLabel($sensor->currentStatus(), __('Current') . ': ' . $sensor->formatValue());
+    $value_label = $sensor->displaysCounterTotal() ? __('Cumulative total') : __('Current');
+    $sensor_current = Html::severityToLabel($sensor->currentStatus(), $value_label . ': ' . $sensor->formatValue());
 
     echo "<div class='panel panel-default'>
         <div class='panel-heading'>
@@ -47,10 +48,14 @@ foreach ($sensors as $sensor) {
         </div>';
     echo "<div class='panel-body'>";
 
-    $graph_array['id'] = $sensor['sensor_id'];
-    $graph_array['type'] = $sensor->getGraphType();
+    if ($sensor->displaysCounterTotal()) {
+        echo '<p>' . e(__('Cumulative total reported by the device; this value may reset.')) . '</p>';
+    } else {
+        $graph_array['id'] = $sensor['sensor_id'];
+        $graph_array['type'] = $sensor->getGraphType();
 
-    include 'includes/html/print-graphrow.inc.php';
+        include 'includes/html/print-graphrow.inc.php';
+    }
 
     echo '</div></div>';
 }

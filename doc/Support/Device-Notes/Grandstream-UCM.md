@@ -68,6 +68,20 @@ The overview contains CPU and memory graphs. Individual call sensors remain
 available in Health, but the overview does not combine concurrent calls and the
 rates calculated from cumulative counters into one graph.
 
+## Call counter display
+
+The OS definition opts UCM count counters into the reusable `sensor_counter_display`
+setting. Overview separates current values from cumulative totals within the normal
+Calls sensor group; Health labels these values as cumulative totals. The displayed
+numbers are PBX totals, not daily counts, and can reset when the PBX resets them.
+Concurrent calls remain a gauge with a history graph.
+
+Only the presentation changes. Existing sensor identities, thresholds and COUNTER
+RRD files remain unchanged. Counter graphs elsewhere still represent rates of
+change, so the total display does not place those graphs beside cumulative values.
+See [counter display settings](../../Developing/os/Settings.md#counter-display)
+for reusable rules and installation overrides.
+
 ## Verification
 
 Use a disposable test database for fixture generation and database-backed tests.
